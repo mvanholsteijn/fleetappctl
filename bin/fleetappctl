@@ -247,14 +247,15 @@ function listUnits() {
 }
 
 function getUnitState() {
-        fleetctl list-units -fields=unit,sub -no-legend | grep "^$1" | cut -f2
+        fleetctl list-units -fields=unit,sub -no-legend | awk "/^$1/{print \$2;}"
 }
 
 function waitUntilUnitIsGone() {
         waitUntilUnitState $1 '^$'
 }
 
-function waitUntilUnitState() {
+function waitUntilUnitState() {	
+	set -x
 	local RETRY=0
 	local OLDSTATE=""
         local STATE=$(getUnitState $1)
@@ -283,15 +284,20 @@ function startUnitFile() {
 	INSTANCE=$2
 	FILENAME=$3
 	START=$5
+	submitUnitFile "$@"
 	if ! isTemplateFile $INSTANCE ; then
-		submitUnitFile "$@"
 		loadUnitFile "$@"
-		if  [ "$START" != "false" -a "$(getUnitState $INSTANCE)" != "running" ] ; then
-			echo "INFO: starting $INSTANCE." >&2
-			(cd $DEPLOY_DIR ; fleetctl start $INSTANCE; waitUntilUnitState $INSTANCE running)
+		if  [ "$START" != "false" ] ; then
+			case "$(getUnitState $INSTANCE)" in
+				running|start-pre|auto-restart)
+					echo >/dev/null ;;
+				*)
+					echo "INFO: starting $INSTANCE." >&2
+					(cd $DEPLOY_DIR ; fleetctl start $INSTANCE; 
+						waitUntilUnitState $INSTANCE '(running|start-pre|auto-restart)')
+				;;
+			esac
 		fi
-	else
-		submitUnitFile "$@"
 	fi
 }
 
