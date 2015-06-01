@@ -255,7 +255,6 @@ function waitUntilUnitIsGone() {
 }
 
 function waitUntilUnitState() {	
-	set -x
 	local RETRY=0
 	local OLDSTATE=""
         local STATE=$(getUnitState $1)
@@ -289,12 +288,12 @@ function startUnitFile() {
 		loadUnitFile "$@"
 		if  [ "$START" != "false" ] ; then
 			case "$(getUnitState $INSTANCE)" in
-				running|start-pre|auto-restart)
+				running|start-pre)
 					echo >/dev/null ;;
 				*)
 					echo "INFO: starting $INSTANCE." >&2
-					(cd $DEPLOY_DIR ; fleetctl start $INSTANCE; 
-						waitUntilUnitState $INSTANCE '(running|start-pre|auto-restart)')
+					(cd $DEPLOY_DIR ; fleetctl start $INSTANCE;
+						waitUntilUnitState $INSTANCE '(running|failed|auto-restart)')
 				;;
 			esac
 		fi
@@ -310,7 +309,8 @@ function stopUnitFile() {
 		if  [ "$START" != "false" ] ; then
 			if [ "$(getUnitState $INSTANCE)" != "dead" ] ; then
 				echo "INFO: stopping $INSTANCE." >&2
-				(cd $DEPLOY_DIR ; fleetctl stop $INSTANCE)
+				(cd $DEPLOY_DIR ; fleetctl stop $INSTANCE;
+					waitUntilUnitState $INSTANCE '(dead|failed)')
 			fi
 		fi
 	fi
