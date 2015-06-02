@@ -1,6 +1,6 @@
 ## unit file with placeholder reference
 sample unit file with placeholder reference.
-This sample requires  the CoreOS platform installed with Consul, Registrator and Http-Router [https://github.com/mvanholsteijn/coreos-container-platform-as-a-service]
+This sample requires  the [CoreOS platform installed with Consul, Registrator and Http-Router](https://github.com/mvanholsteijn/coreos-container-platform-as-a-service)
 
 ### Usage
 ```bash
