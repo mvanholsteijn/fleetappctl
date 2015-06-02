@@ -23,7 +23,7 @@ the application.
 
 All the fleet unit files to be deployed are described in the deployment descriptor. The unit files referenced in the 
 deployment-descriptor may have placeholders for environment specific variables. These are indicated refered to by curly brackets {{ }}.
-fleetappctl is idempotent and does rolling upgrades.
+fleetappctl is idempotent and does rolling upgrades on template files with multiple instances running.
 
 ### start
 The start command will start all units in the order as they appear in the deployment descriptor. If you have a template
