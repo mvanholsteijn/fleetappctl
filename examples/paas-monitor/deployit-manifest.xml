@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<udm.DeploymentPackage version="1.0" application="paas-monitor">
+  <deployables>
+
+    <fleet.UnitConfigurationFile name="paas-monitor" file="paas-monitor@.service">
+      <scanPlaceholders>true</scanPlaceholders>
+      <startUnit>true</startUnit>
+      <numberOfInstances>2</numberOfInstances>
+    </fleet.UnitConfigurationFile>
+
+  </deployables>
+</udm.DeploymentPackage>

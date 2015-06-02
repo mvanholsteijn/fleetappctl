@@ -247,7 +247,7 @@ function listUnits() {
 }
 
 function getUnitState() {
-        fleetctl list-units -fields=unit,sub -no-legend | awk "/^$1/{print \$2;}"
+        fleetctl list-units -fields=unit,sub -no-legend | awk "/^$1/{print \$2;}" | sort -u | tr '\n' ' ' | sed 's/ $//' 
 }
 
 function waitUntilUnitIsGone() {
@@ -256,9 +256,9 @@ function waitUntilUnitIsGone() {
 
 function waitUntilUnitState() {	
 	local RETRY=0
-	local OLDSTATE=""
+	local OLDSTATE="x"
         local STATE=$(getUnitState $1)
-        while ! (echo $STATE | egrep -q "$2"); do
+        while ! (echo $STATE | egrep -q "^$2\$"); do
 		if [ "$STATE" != "$OLDSTATE" ] ; then
 			test -n "$OLDSTATE" && echo
 			echo  -n "INFO: $1 in state ${STATE}";
@@ -274,6 +274,10 @@ function waitUntilUnitState() {
 
 		OLDSTATE=$STATE
                 STATE=$(getUnitState $1)
+		if [ -z "$STATE" ] ; then
+			echo "ERROR: could not obtain state of $1." >&2
+			exit 1
+		fi
         done
 	test -n "$OLDSTATE" && echo
 	echo  "INFO: $1 in state ${STATE}.";
@@ -292,7 +296,7 @@ function startUnitFile() {
 					echo >/dev/null ;;
 				*)
 					echo "INFO: starting $INSTANCE." >&2
-					(cd $DEPLOY_DIR ; fleetctl start $INSTANCE;
+					(cd $DEPLOY_DIR ; fleetctl start $INSTANCE; sleep 1 ; 
 						waitUntilUnitState $INSTANCE '(running|failed|auto-restart)')
 				;;
 			esac
@@ -310,7 +314,7 @@ function stopUnitFile() {
 			if [ "$(getUnitState $INSTANCE)" != "dead" ] ; then
 				echo "INFO: stopping $INSTANCE." >&2
 				(cd $DEPLOY_DIR ; fleetctl stop $INSTANCE;
-					waitUntilUnitState $INSTANCE '(dead|failed)')
+					waitUntilUnitState $INSTANCE '(dead|failed|dead failed)')
 			fi
 		fi
 	fi
@@ -325,7 +329,7 @@ function destroyUnitFile() {
 function submitUnitFile() {
 	local INSTANCE=$2
 	local FILENAME=$3
-	LOADED=$(fleetctl list-unit-files -no-legend -fields=unit | grep -e "^$FILENAME")
+	LOADED=$(fleetctl list-unit-files -no-legend -fields=unit | grep -e "^$INSTANCE")
 	if [ -n "$LOADED" ] ; then
 		if fleetctl cat $INSTANCE | diff -B -w $DEPLOY_DIR/$FILENAME - >/dev/null ; then
 			  echo "INFO: unit $INSTANCE unchanged."
