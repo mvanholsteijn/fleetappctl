@@ -19,7 +19,7 @@ cd fleetappctl
 Checkout [fleetappctl.md](./doc/fleetappctl.md) for the manual page.
 
 ##  Examples
-[composite application](examples/redis-app/README.md)
-[rolling upgrade with placeholder replacement](examples/paas-monitor/README.md)
+* [composite application](examples/redis-app/README.md)
+* [rolling upgrade with placeholder replacement](examples/paas-monitor/README.md)
 
 	
