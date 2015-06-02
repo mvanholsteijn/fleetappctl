@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-# Usage:
-#	deployit.sh [deploy|undeploy] -d deployment-descriptor  [-e environment-file] 
-#
 # Description
 #	Deploys the fleet unit files described in the deployment descriptor. 
 #	The unit files referenced in the deployment-descriptor may have placeholders for
-#	environment specific variables. These are indicated refered to by curly brackets {{ }}
+#	environment specific variables. These are indicated refered to by curly brackets {{ }}.
+# 	Is idempotent and does rolling upgrades.
+#
+#	see https://github.com/mvanholsteijn/fleetappctl/doc/fleetappctl.md for more information.
 #	
 DEPLOY_DIR=.deployment
 ENVFILE=
