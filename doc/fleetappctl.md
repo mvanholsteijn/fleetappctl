@@ -66,6 +66,7 @@ attribute 		| description
 @file			| filename of the unit
 
 a fleet.UnitConfigurationFile element can have the following elements:
+
 attribute 		| description
 ------------------------|------------------------------------------------------------------------------------
 scanPlaceholders	| boolean indicating the file should be scanned for placeholders , defaults to true.
