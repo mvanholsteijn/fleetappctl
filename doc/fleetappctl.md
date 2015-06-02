@@ -14,8 +14,8 @@ option				| description
 generate			| a deployment descriptor based on the content of the directory
 list				| executes a fleetctl list-units for units in the deployment descriptor
 start				| all the units in the deployment descriptor
-stop				| all the units in the deployment descriptor
-destroy				| all the units in the deployment descriptor
+stop				| all the units in the deployment descriptor in reverse order
+destroy				| all the units in the deployment descriptor in reverse order
 
 ## DESCRIPTION
 fleetappctl allows you to manage a set of CoreOS fleet unit files as a single application. You can start, stop and deploy
@@ -33,15 +33,6 @@ start is idempotent, so you may call start multiple times. Start will bring the 
 
 If the unit file has changed with respect to the deployed unit file, the corresponding instances will be stopped and restarted with the new
 unit file. If you have a template file, the instances of the template file will be upgraded one by one.
-
-### stop
-will stop all units in the reverse order as they appear in the deployment descriptor.
-
-### list
-will list all units in the deployment descriptor.
-
-### destroy
-will destroy all units in the reverse order as they appear in the deployment descriptor.
 
 ### generate
 Generates a deployment descriptor (deployit-manifest.xml) from all the unit files found in your directory. If a file is a template
