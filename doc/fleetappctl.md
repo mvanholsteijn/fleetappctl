@@ -1,18 +1,22 @@
 ## NAME
-	fleetappctl - Command line utility for the deployment of applications to CoreOS consisting of a collection of fleet files
+fleetappctl - Command line utility for the deployment of applications to CoreOS consisting of a collection of fleet files
 
 ## SYNOPSIS
-	fleetappctl [-d deployment-descriptor] [-e environment-file] (generate | list | start | stop | destroy)
+```
+fleetappctl [-d deployment-descriptor] [-e environment-file] (generate | list | start | stop | destroy)
+```
 
 ## OPTIONS
-	-d deployment-descriptor	the deployment descriptor, defaults to deployit-manifest.xml
-	-e environment-file		the file with environment variables, specific to a deployment
-	generate			a deployment descriptor based on the content of the directory
-	list				executes a fleetctl list-units for units in the deployment descriptor
-	start				all the units in the deployment descriptor
-	stop				all the units in the deployment descriptor
-	destroy				all the units in the deployment descriptor
-	
+```
+-d deployment-descriptor	the deployment descriptor, defaults to deployit-manifest.xml
+-e environment-file		the file with environment variables, specific to a deployment
+generate			a deployment descriptor based on the content of the directory
+list				executes a fleetctl list-units for units in the deployment descriptor
+start				all the units in the deployment descriptor
+stop				all the units in the deployment descriptor
+destroy				all the units in the deployment descriptor
+```
+
 ## DESCRIPTION
 fleetappctl allows you to manage a set of CoreOS fleet unit files as a single application. You can start, stop and deploy
 the application.
@@ -50,20 +54,20 @@ these are found, they will be replaced with an actual value as specified in the 
 The deployment descriptor is an XML file matching with the following structure:
 
 ```
-  /udm.DeploymentPackage/deployables	- root element containing individual deployable units
-  /udm.DeploymentPackage/fleet.UnitConfigurationFile*	- one or more fleet unit files.
+/udm.DeploymentPackage/deployables	- root element containing individual deployable units
+/udm.DeploymentPackage/fleet.UnitConfigurationFile*	- one or more fleet unit files.
 ```
 a fleet.UnitConfigurationFile element must have the following attributes:
 ```
-  @name			- logical name of the unit file
-  @file			- filename of the unit
+@name			- logical name of the unit file
+@file			- filename of the unit
 ```
 
 a fleet.UnitConfigurationFile element can have the following elements:
 ```
-  scanPlaceholders	- boolean indicating the file should be scanned for placeholders , defaults to true.
-  startUnit		- boolean indicating the file should be started, defaults to true.
-  numberOfInstances	- integer indicating the number of instances to start, defaults to 2 for template files.
+scanPlaceholders	- boolean indicating the file should be scanned for placeholders , defaults to true.
+startUnit		- boolean indicating the file should be started, defaults to true.
+numberOfInstances	- integer indicating the number of instances to start, defaults to 2 for template files.
 ```
 
 ## PREREQUISITES
