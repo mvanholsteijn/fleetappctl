@@ -1,6 +1,6 @@
 ## composite application
 sample composite fleet application 
-This sample requires the CoreOS platform installed with Consul, Registrator and Http-Router [https://github.com/mvanholsteijn/coreos-container-platform-as-a-service]
+This sample requires the [CoreOS platform installed with Consul, Registrator and Http-Router](https://github.com/mvanholsteijn/coreos-container-platform-as-a-service)
 
 ### Start the application
 ```bash
