@@ -3,13 +3,15 @@ fleetappctl - Command line utility for the deployment of applications consisting
 
 ## SYNOPSIS
 ```
-fleetappctl [-d deployment-descriptor] [-e environment-file] (generate | list | start | stop | destroy)
+fleetappctl [-d deployment-descriptor-file] 
+            [-e environment-file] 
+            (generate | list | start | stop | destroy)
 ```
 
 ## OPTIONS
 option				| description
 --------------------------------|---------------------------------------------------------------------
--d deployment-descriptor	| the deployment descriptor, defaults to deployit-manifest.xml
+-d deployment-descriptor-file	| the deployment descriptor, defaults to deployit-manifest.xml
 -e environment-file		| the file with environment variables, specific to a deployment
 generate			| a deployment descriptor based on the content of the directory
 list				| executes a fleetctl list-units for units in the deployment descriptor
