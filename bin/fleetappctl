@@ -141,10 +141,17 @@ function generateSedPlaceHolders() {
 	done
 }
 
-checkVariableSet() {
+function findAllPlaceHolders() {
+	(
+		forEachUnit findPlaceHolders 
+		forEachConsulKV findPlaceHolders 
+	) | sort -u
+}
+
+function checkVariableSet() {
 	KEYFILE=${TMPDIR:-/tmp}/keyfile$$.txt
 	sed -e 's/^\([^=]*\)=.*/\1/' $ENVFILE | sort -u > $KEYFILE
-	DIFF=$(forEachUnit findPlaceHolders | sort -u	| comm -1 -3 $KEYFILE - | tr '\n' ', ' | sed -e 's/,$//' -e 's/,/, /g')
+	DIFF=$( findAllPlaceHolders | sort -u	| comm -1 -3 $KEYFILE - | tr '\n' ', ' | sed -e 's/,$//' -e 's/,/, /g')
 	rm -f $KEYFILE
 	if [ -n "$DIFF" ] ; then
 		echo "ERROR: The following variables are not specified in $ENVFILE: $DIFF" >&2
@@ -182,9 +189,11 @@ function checkPreconditions() {
 
 	case "$COMMAND" in 
 		start)
-			 UNIT_WITH_PLACEHOLDERS=$(descriptorToTable $DESCRIPTOR | \
-					awk -F^ '{ if($3 == "true") { printf("%s,", $2); }}' | \
-					sed -e 's/,$//')
+			 UNIT_WITH_PLACEHOLDERS=$( xml sel -t \
+							-m '//scanPlaceholders[text()="true"]' \
+							-v 'concat(../@name, ",")'  \
+							$DESCRIPTOR |  \
+							sed -e 's/,$//')
 
 			if [ -n "$UNIT_WITH_PLACEHOLDERS" -a -z "$ENVFILE" ] ; then
 				echo "ERROR: No environment option (-e) specified, but placeholders found in: $UNIT_WITH_PLACEHOLDERS" >&2
@@ -215,6 +224,8 @@ function copyUnitFile() {
 	local SCAN_PLACE_HOLDERS=$3
 	local TARGET_PATH=$DEPLOY_DIR/$(basename $FILENAME)
 
+	mkdir -p $DEPLOY_DIR
+
 	if [ $SCAN_PLACE_HOLDERS == "true" ] ; then
 		generateSedPlaceHolders  > $DEPLOY_DIR/sedscript
 		sed -f $DEPLOY_DIR/sedscript $FILENAME | removeLineContinuations > $TARGET_PATH
@@ -223,11 +234,6 @@ function copyUnitFile() {
 	fi
 }
 
-function copyUnitFiles() {
-	mkdir -p $DEPLOY_DIR
-
-	forEachUnit copyUnitFile
-}
 
 function loadUnitFile() {
 	local INSTANCE=$2
@@ -413,31 +419,63 @@ function generateDescriptor() {
 	echo "INFO: generated $DESCRIPTOR." >&2
 }
 
+
+function listConsulKV() {
+	consul.KeyValuePairs -f "$2" list
+}
+
+function updateConsulKV() {
+	consul.KeyValuePairs -f "$DEPLOY_DIR/$2" update
+}
+
+function destroyConsulKV() {
+	consul.KeyValuePairs -f "$2" destroy
+}
+
+function forEachConsulKV() {
+	 $XMLSTARLET sel -t -m //consul.KeyValuePairs \
+		-v 'concat(@name, "^", @file)' \
+		-v 'concat("^", ./scanPlaceholders)' \
+		-n \
+		$DESCRIPTOR | while read LINE ; do 
+		NAME=$(echo $LINE | awk  -F^ '{print $1}')
+		FILENAME=$(echo $LINE | awk  -F^ '{print $2}')
+		SCAN_PLACE_HOLDERS=$(echo $LINE | awk  -F^ '{if ($3 != "false")  print "true"; else print $3}')
+		eval "$@"  "$NAME" "$FILENAME" "$SCAN_PLACE_HOLDERS"
+	done 
+}
+
+
 determineXMLStarlet
 parseCommandLine "$@"
 checkPreconditions
 
 case $COMMAND in
 	placeholders)
-		forEachUnit findPlaceHolders | sort -u
+		findAllPlaceHolders
 		;;
 	list)
 		listUnits
+		echo ;
+		forEachConsulKV listConsulKV
 		;;
 	generate)
 		generateDescriptor
 		;;
 	start)
-		copyUnitFiles
+		forEachConsulKV copyUnitFile
+		forEachConsulKV updateConsulKV
+
+		forEachUnit copyUnitFile
 		forEachInstance startUnitFile
 		;;
 	stop)
-		copyUnitFiles
 		forEachInstance --reverse stopUnitFile
 		;;
 	destroy)
 		forEachInstance --reverse stopUnitFile
 		forEachInstance --reverse destroyUnitFile
+		forEachConsulKV destroyConsulKV
 		;;
 	*)
 		echo ERROR: $COMMAND not yet implemented... >&2

@@ -1,0 +1,106 @@
+#!/bin/bash
+
+MACHINE_ID=
+CONSUL_IP=
+CONSUL_PORT=8500
+FILENAME=
+
+function parseCommandLine() {
+        USAGE="Usage: $(basename $0) [-f filename] (list | update | destroy)"
+
+        while getopts "f:" OPT; do
+                case $OPT in
+                        f)
+                                FILENAME=$OPTARG
+				if [ ! -f "$FILENAME" ] ; then
+					echo $USAGE >&2
+					echo "	'$FILENAME' is not a file." >&2
+					exit 1
+				fi
+				shift 2;
+                                ;;
+                        \*)
+                                echo $USAGE >&2
+                                exit 1
+                                ;;
+                esac
+        done
+
+	if [ -z "$FILENAME" ] ; then
+		echo $USAGE >&2
+		echo "	-f option is missing. " >&2
+		exit 1
+	fi
+
+	
+	case "$1" in 
+		list|update|destroy)
+			COMMAND=$1
+			;;
+		*)
+			echo $USAGE >&2
+			exit 1
+			;;
+	esac
+}
+
+function determineConsulHost() {
+	MACHINE=$(fleetctl list-machines -fields=machine,ip -full -no-legend | head -1)
+	MACHINE_ID=$(echo $MACHINE | awk '{print $1;}')
+	CONSUL_IP=$(echo $MACHINE | awk '{print $2;}')
+
+	if [ -z "$MACHINE" -o -z "$MACHINE_ID" -o -z "$CONSUL_IP" ] ; then
+		echo "ERROR: No machine found to deploy to." >&2
+		exit 1
+	fi
+}
+
+function listValue() {
+	echo "$1=$(getValue \"$1\")"
+}
+
+function destroyValue() {
+	RESULT=$(fleetctl ssh $MACHINE_ID curl -s -X DELETE "http://$CONSUL_IP:$CONSUL_PORT/v1/kv/$1" < /dev/null)
+	if [ "$RESULT" != "true" ] ; then
+		echo "ERROR: failed to delete value of key $1." >&2
+	else
+		echo "INFO:  key '$1' deleted." >&2
+	fi
+}
+
+function getValue() {
+	fleetctl ssh $MACHINE_ID curl -s -X GET "http://$CONSUL_IP:$CONSUL_PORT/v1/kv/$1?raw" < /dev/null
+}
+
+function doUpdateValue() {
+	RESULT=$(fleetctl ssh $MACHINE_ID curl -s -X PUT -d "'$2'" "http://$CONSUL_IP:$CONSUL_PORT/v1/kv/$1" </dev/null)
+
+	if [ "$RESULT" != "true" ] ; then
+		echo "WARN: failed to put value to key $1." >&2
+	else
+		echo "INFO:  key '$1' updated." >&2
+	fi
+}
+
+function updateValue() {
+	OLDVALUE=$(getValue $1)
+		
+	if [ "$OLDVALUE" != "$2" ] ; then
+		doUpdateValue "$1" "$2"
+	else
+		echo "INFO: value $1 already up to date"
+	fi
+}
+
+function forEachKeyValue() {
+	cat "$FILENAME" | while read KV; do
+		KEY=$(echo "$KV" | sed -e 's/=.*//')
+		VALUE=$(echo "$KV" | sed -e 's/^[^=]*=//')
+		"$@" "$KEY" "$VALUE"
+	done
+}
+
+
+parseCommandLine "$@"
+determineConsulHost
+forEachKeyValue ${COMMAND}Value
