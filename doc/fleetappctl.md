@@ -85,9 +85,9 @@ scanPlaceholders	| boolean indicating the file should be scanned for placeholder
 * installation of XMLStarlet
 
 ##  EXAMPLES
-* [composite application](../examples/redis-app/README.md)
-* [rolling upgrade with placeholder replacement](../examples/paas-monitor/README.md)
-* [dynamic configuration via Consul](../examples/envconsul/README.md)
+* [composite application](/examples/redis-app/README.md)
+* [rolling upgrade with placeholder replacement](/examples/paas-monitor/README.md)
+* [dynamic configuration via Consul](/examples/envconsul/README.md)
 
 ## INSTALL
 To install the utility in /usr/local/bin, type the following commands.
