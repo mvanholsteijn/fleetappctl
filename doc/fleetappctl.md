@@ -11,7 +11,7 @@ fleetappctl [-d deployment-descriptor-file]
 ## OPTIONS
 option				| description
 --------------------------------|---------------------------------------------------------------------
--d deployment-descriptor	| the deployment descriptor, defaults to deployit-manifest.xml
+-d deployment-descriptor-file	| the deployment descriptor, defaults to deployit-manifest.xml
 -e environment-file		| the file with environment variables, specific to a deployment
 generate			| a deployment descriptor based on the content of the directory
 list				| executes a fleetctl list-units for units in the deployment descriptor
