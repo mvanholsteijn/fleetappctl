@@ -3,7 +3,9 @@ fleetappctl - Command line utility for the deployment of applications consisting
 
 ## SYNOPSIS
 ```
-fleetappctl [-d deployment-descriptor] [-e environment-file] (generate | list | start | stop | destroy)
+fleetappctl [-d deployment-descriptor-file] 
+            [-e environment-file] 
+            (generate | list | start | stop | destroy)
 ```
 
 ## OPTIONS
