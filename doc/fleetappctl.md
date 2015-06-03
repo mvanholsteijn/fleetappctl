@@ -72,7 +72,7 @@ a consul.KeyValuePairs element must have the following attributes:
 attribute 		| description
 ------------------------|------------------------------------------------------------------------------------
 @name			| logical name of the key value pair set
-@file			| filename of key value pair set. The file will have a line in the format <keyname>=<value> for each key value pair.
+@file			| filename of key value pair set. The file will have a line in the format &lt;keyname>=&lt;value> for each key value pair.
 
 a consul.KeyValuePairs element can have the following elements:
 
