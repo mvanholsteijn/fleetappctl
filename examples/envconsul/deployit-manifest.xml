@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<udm.DeploymentPackage version="1.0" application="paas-monitor">
+  <deployables>
+
+    <consul.KeyValuePairs name="consul-kv" file="keys.consul">
+      <scanPlaceholders>true</scanPlaceholders>
+    </consul.KeyValuePairs>
+
+    <fleet.UnitConfigurationFile name="paas-monitor" file="paas-monitor@.service">
+      <scanPlaceholders>false</scanPlaceholders>
+      <startUnit>true</startUnit>
+      <numberOfInstances>3</numberOfInstances>
+    </fleet.UnitConfigurationFile>
+
+  </deployables>
+
+</udm.DeploymentPackage>

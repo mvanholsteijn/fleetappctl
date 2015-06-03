@@ -1,0 +1,4 @@
+paas-monitor/release={{release}}
+paas-monitor/description={{description}}
+kraken/webapp/release=v1
+kraken/tenticle/release=v2
